@@ -1,4 +1,4 @@
-# fly.toml file generated for diet-notebook-backend on 2022-12-16T20:21:06+03:00
+# fly.toml file generated for diet-notebook-backend on 2022-12-16T23:55:52+03:00
 
 app = "diet-notebook-backend"
 kill_signal = "SIGINT"
@@ -6,7 +6,6 @@ kill_timeout = 5
 processes = []
 
 [env]
-  PORT = "8080"
 
 [experimental]
   allowed_public_ports = []
