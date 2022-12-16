@@ -1,13 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const userSchema = mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
-    email: {
-        type: String, 
-        match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
-        required: true
-    },
-    password: {type: String, required: true},
-})
+const Diet = require('./Diet').schema;
 
-module.exports = mongoose.model('User', userSchema);
+const { Schema, model } = mongoose;
+
+const userSchema = Schema({
+  _id: mongoose.Schema.Types.ObjectId,
+  name: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  hashedPassword: { type: String, required: true, minlength: 5 },
+  dietList: [Diet],
+});
+
+module.exports = model("User", userSchema);
