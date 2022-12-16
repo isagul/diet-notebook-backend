@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const User = require('../models/User');
+const Meal = require('../models/Meal');
 
 function getAllDaysInMonth(year, month) {
   const date = new Date(year, month, 1);
@@ -24,7 +25,7 @@ const formatDate = day => {
 exports.createDietList = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .exec()
-    .then(async (user) => {
+    .then(async () => {
       const now = new Date();
       const days = getAllDaysInMonth(now.getFullYear(), now.getMonth());
 
@@ -73,8 +74,6 @@ exports.createDietList = (req, res, next) => {
         })
       })
 
-      console.log('dietObject :>> ', dietObject);
-
       const userUpdate = User.findOneAndUpdate(
         { email: req.body.email },
         {
@@ -88,7 +87,7 @@ exports.createDietList = (req, res, next) => {
         .then(result => {
           res.status(200).json({
             status: true,
-            message: result
+            data: result
           })
         })
         .catch(err => {
@@ -104,15 +103,11 @@ exports.createDietList = (req, res, next) => {
 exports.updateMealtoDiet = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .exec()
-    .then(async (user) => {
+    .then(async () => {
       try {
-        const result = await User.findOneAndUpdate(
+        await User.findOneAndUpdate(
           { email: req.body.email },
           {
-            // "$set": {
-            //   "dietList.$[list].date": req.body.date,
-            //   "dietList.$[list].meals.$[meal].name": req.body.mealName,
-            // },
             "$push": {
               "dietList.$[list].meals.$[meal].items": {
                 _id: mongoose.Types.ObjectId(),
@@ -128,9 +123,9 @@ exports.updateMealtoDiet = (req, res, next) => {
           },
         )
 
-        res.status(200).json({ message: "Item was updated successfully!" });
+        res.status(200).json({ message: "Item was created successfully!" });
       } catch (error) {
-        res.status(500).json({ error: 'There was a Server Side Error!' })
+        res.status(500).json({ error: 'There was a server side error!' })
       }
 
     })
@@ -158,3 +153,33 @@ exports.getUserDietList = (req, res, next) => {
       })
     })
 }
+
+exports.deleteMealItem = (req, res, next) => {
+  User.findOne({ email: req.body.email })
+    .exec()
+    .then(async () => {
+      try {
+        const result = await User.findOneAndUpdate(
+          { email: req.body.email },
+          {
+            "$pull": {
+              "dietList.$[list].meals.$[meal].items": { _id: mongoose.Types.ObjectId(req.body.itemId) },
+            }
+          },
+          {
+            "arrayFilters": [
+              { "list.date": req.body.date },
+              { "meal.property": req.body.mealName },
+            ], new: true
+          },
+        )
+
+        res.status(200).json({ message: "Item was deleted successfully!" });
+      } catch (error) {
+        res.status(500).json({ error: 'There was a server side error!' })
+      }
+
+    })
+}
+
+

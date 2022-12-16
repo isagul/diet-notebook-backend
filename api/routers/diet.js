@@ -6,5 +6,6 @@ const DietController = require('../controllers/diet');
 router.post('/createDietList', DietController.createDietList);
 router.put('/updateMealtoDiet', DietController.updateMealtoDiet);
 router.get('/getUserDietList', DietController.getUserDietList);
+router.delete('/deleteMealItem', DietController.deleteMealItem);
 
 module.exports = router;
