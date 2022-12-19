@@ -159,7 +159,7 @@ exports.deleteMealItem = (req, res, next) => {
     .exec()
     .then(async () => {
       try {
-        const result = await User.findOneAndUpdate(
+        await User.findOneAndUpdate(
           { email: req.body.email },
           {
             "$pull": {
@@ -182,4 +182,58 @@ exports.deleteMealItem = (req, res, next) => {
     })
 }
 
+exports.updateMealItem = (req, res, next) => {
+  User.findOne({ email: req.body.email })
+    .exec()
+    .then(async () => {
+      try {
+        await User.findOneAndUpdate(
+          { email: req.body.email },
+          {
+            "$set": {
+              "dietList.$[list].meals.$[meal].items.$[item].name": req.body.item,
+            }
+          },
+          {
+            "arrayFilters": [
+              { "list.date": req.body.date },
+              { "meal.property": req.body.mealName },
+              { "item._id": mongoose.Types.ObjectId(req.body.itemId) },
+            ], new: true
+          },
+        )
 
+        res.status(200).json({ message: "Item was updated successfully!" });
+      } catch (error) {
+        res.status(500).json({ error: 'There was a server side error!' })
+      }
+
+    })
+}
+
+exports.createDailyResults = (req, res, next) => {
+  User.findOne({ email: req.body.email })
+    .exec()
+    .then(async () => {
+      try {
+        await User.findOneAndUpdate(
+          { email: req.body.email },
+          {
+            "$set": {
+              "dietList.$[list].stepCount": req.body.stepCount,
+              "dietList.$[list].waterAmount": req.body.waterAmount,
+            }
+          },
+          {
+            "arrayFilters": [
+              { "list.date": req.body.date },
+            ], new: true
+          },
+        )
+
+        res.status(200).json({ message: "Daily results were created successfully!" });
+      } catch (error) {
+        res.status(500).json({ error: 'There was a server side error!' })
+      }
+    })
+}
